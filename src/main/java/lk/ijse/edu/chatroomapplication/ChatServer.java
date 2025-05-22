@@ -1,9 +1,8 @@
 package lk.ijse.edu.chatroomapplication;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
@@ -24,8 +23,23 @@ public class ChatServer {
     private static HashSet<String> names = new HashSet<String>();
     private static HashSet<PrintWriter> writers = new HashSet<PrintWriter>();
 
+    // Swing UI components
+    private static DefaultListModel<String> clientListModel = new DefaultListModel<>();
+    private static JTextArea logArea = new JTextArea(10, 30);
+
     public static void main(String[] args) throws Exception {
-        System.out.println("Chat Server is running...");
+        // Setup UI
+        JFrame frame = new JFrame("Chat Server - Connected Clients");
+        JList<String> clientList = new JList<>(clientListModel);
+        logArea.setEditable(false);
+        frame.setLayout(new BorderLayout());
+        frame.add(new JScrollPane(clientList), BorderLayout.CENTER);
+        frame.add(new JScrollPane(logArea), BorderLayout.SOUTH);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+
+        log("Chat Server is running...");
         ServerSocket listener = new ServerSocket(PORT);
         try {
             while (true) {
@@ -36,6 +50,10 @@ public class ChatServer {
         } finally {
             listener.close();
         }
+    }
+
+    private static void log(String message) {
+        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
     }
 
     private static class Handler implements Runnable {
@@ -59,15 +77,19 @@ public class ChatServer {
                     if (name == null) {
                         return;
                     }
-                    if (!names.contains(names)) {
-                        names.add(name);
-                        break;
-                    } else {
-                        out.println("NAME ALREADY EXISTS");
+                    synchronized (names) {
+                        if (!names.contains(name)) {
+                            names.add(name);
+                            SwingUtilities.invokeLater(() -> clientListModel.addElement(name));
+                            break;
+                        } else {
+                            out.println("NAME ALREADY EXISTS");
+                        }
                     }
                 }
                 out.println("NAME ACCEPTED");
                 writers.add(out);
+                log(name + " connected.");
 
                 while (true) {
                     String input = in.readLine();
@@ -81,8 +103,12 @@ public class ChatServer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
-                if (names != null) {
-                    names.remove(name);
+                if (name != null) {
+                    synchronized (names) {
+                        names.remove(name);
+                        SwingUtilities.invokeLater(() -> clientListModel.removeElement(name));
+                    }
+                    log(name + " has left the chat.");
                 }
                 if (out != null) {
                     writers.remove(out);
