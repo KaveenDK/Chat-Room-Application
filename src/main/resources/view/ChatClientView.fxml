@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="lk.ijse.edu.chatroomapplication.Controller.ChatClientController"
+            prefHeight="400.0" prefWidth="600.0"
+            style="-fx-background-color:linear-gradient(to bottom,#f8fafc,#e2e8f0);">
+    <children>
+        <VBox spacing="12.0" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+            <children>
+                <Label text="Chat Room by KaveeN" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2563eb; -fx-padding: 16 0 0 16;"/>
+                <TextArea fx:id="chatArea" prefHeight="260.0" editable="false" wrapText="true"
+                          style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1;"/>
+                <HBox spacing="8.0">
+                    <children>
+                        <TextField fx:id="inputField" promptText="Type your message..." HBox.hgrow="ALWAYS"
+                                   style="-fx-background-radius: 8; -fx-border-radius: 8;"/>
+                        <Button fx:id="sendButton" text="Send" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <Insets top="0" right="16" bottom="16" left="16"/>
+            </padding>
+        </VBox>
+    </children>
+</AnchorPane>
