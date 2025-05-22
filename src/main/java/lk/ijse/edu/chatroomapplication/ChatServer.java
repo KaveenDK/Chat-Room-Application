@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 
@@ -24,7 +25,17 @@ public class ChatServer {
     private static HashSet<PrintWriter> writers = new HashSet<PrintWriter>();
 
     public static void main(String[] args) throws Exception {
-
+        System.out.println("Chat Server is running...");
+        ServerSocket listener = new ServerSocket(PORT);
+        try {
+            while (true) {
+                Socket socket = listener.accept();
+                Thread handlerThread = new Thread(new Handler(socket));
+                handlerThread.start();
+            }
+        } finally {
+            listener.close();
+        }
     }
 
     private static class Handler implements Runnable {
