@@ -18,8 +18,8 @@ import javafx.stage.Stage;
 public class ChatClientApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Chat Room by KaveeN");
-        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/ChatClientView.fxml"))));
+        primaryStage.setTitle("Connect to Chat Server");
+        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/ClientConnectView.fxml"))));
         primaryStage.show();
     }
 

@@ -28,6 +28,14 @@ public class ChatClientController {
 
     private BufferedReader in;
     private PrintWriter out;
+    private String serverAddress;
+    private String screenName;
+
+    public void initConnection(String server, String name) {
+        this.serverAddress = server;
+        this.screenName = name;
+        new Thread(this::runClient).start();
+    }
 
     @FXML
     public void initialize() {
@@ -39,8 +47,6 @@ public class ChatClientController {
         inputField.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) sendMessage();
         });
-
-        new Thread(this::runClient).start();
     }
 
     private void sendMessage() {
@@ -53,9 +59,7 @@ public class ChatClientController {
 
     private void runClient() {
         try {
-            String serverAddress = prompt("Enter IP Address of the Server:");
             Socket socket = new Socket(serverAddress, 8080);
-
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -63,7 +67,7 @@ public class ChatClientController {
                 String serverMessage = in.readLine();
                 if (serverMessage == null) break;
                 if (serverMessage.startsWith("SUBMIT NAME")) {
-                    out.println(prompt("Choose a screen name:"));
+                    out.println(screenName);
                 } else if (serverMessage.startsWith("NAME ACCEPTED")) {
                     Platform.runLater(() -> {
                         inputField.setDisable(false);
@@ -77,13 +81,5 @@ public class ChatClientController {
         } catch (Exception e) {
             Platform.runLater(() -> chatArea.appendText("Connection error: " + e.getMessage() + "\n"));
         }
-    }
-
-    private String prompt(String message) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Chat Room by KaveeN");
-        dialog.setHeaderText(message);
-        dialog.setContentText(null);
-        return dialog.showAndWait().orElse("");
     }
 }
