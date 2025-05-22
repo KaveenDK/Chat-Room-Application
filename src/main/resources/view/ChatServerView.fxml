@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="lk.ijse.edu.chatroomapplication.Controller.ChatServerController"
+            prefHeight="420.0" prefWidth="600.0"
+            style="-fx-background-color:linear-gradient(to bottom,#f8fafc,#e2e8f0);">
+    <children>
+        <VBox spacing="16.0" layoutX="0.0" layoutY="0.0" prefWidth="600.0" prefHeight="420.0" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+            <children>
+                <Label text="Chat Server by KaveeN - Connected Clients" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2563eb; -fx-padding: 16 0 0 16;"/>
+                <HBox spacing="16.0" alignment="TOP_CENTER">
+                    <children>
+                        <VBox spacing="8.0" prefWidth="300.0">
+                            <children>
+                                <Label text="Clients" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #334155;"/>
+                                <ListView fx:id="clientListView" prefHeight="250.0" prefWidth="260.0" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1;"/>
+                            </children>
+                        </VBox>
+                        <VBox spacing="8.0" prefWidth="280.0">
+                            <children>
+                                <Label text="Server Log" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #334155;"/>
+                                <TextArea fx:id="logArea" prefHeight="250.0" prefWidth="260.0" editable="false" wrapText="true"
+                                          style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1;"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <Insets top="0" right="16" bottom="16" left="16"/>
+            </padding>
+        </VBox>
+    </children>
+</AnchorPane>

@@ -1,11 +1,4 @@
-package lk.ijse.edu.chatroomapplication;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.HashSet;
+package lk.ijse.edu.chatroomapplication.Controller;
 
 /**
  * --------------------------------------------
@@ -17,52 +10,59 @@ import java.util.HashSet;
  * --------------------------------------------
  **/
 
-public class ChatServer {
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.HashSet;
+
+public class ChatServerController {
 
     private static final int PORT = 8080;
-    private static HashSet<String> names = new HashSet<String>();
-    private static HashSet<PrintWriter> writers = new HashSet<PrintWriter>();
+    private final HashSet<String> names = new HashSet<>();
+    private final HashSet<PrintWriter> writers = new HashSet<>();
+    private final ObservableList<String> clientNames = FXCollections.observableArrayList();
 
-    // Swing UI components
-    private static DefaultListModel<String> clientListModel = new DefaultListModel<>();
-    private static JTextArea logArea = new JTextArea(10, 30);
+    @FXML
+    private ListView<String> clientListView;
+    @FXML
+    private TextArea logArea;
 
-    public static void main(String[] args) throws Exception {
-        // Setup UI
-        JFrame frame = new JFrame("Chat Server - Connected Clients");
-        JList<String> clientList = new JList<>(clientListModel);
-        logArea.setEditable(false);
-        frame.setLayout(new BorderLayout());
-        frame.add(new JScrollPane(clientList), BorderLayout.CENTER);
-        frame.add(new JScrollPane(logArea), BorderLayout.SOUTH);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-
+    @FXML
+    public void initialize() {
+        clientListView.setItems(clientNames);
         log("Chat Server is running...");
-        ServerSocket listener = new ServerSocket(PORT);
-        try {
+        new Thread(this::startServer).start();
+    }
+
+    private void startServer() {
+        try (ServerSocket listener = new ServerSocket(PORT)) {
             while (true) {
                 Socket socket = listener.accept();
-                Thread handlerThread = new Thread(new Handler(socket));
-                handlerThread.start();
+                new Thread(new Handler(socket)).start();
             }
-        } finally {
-            listener.close();
+        } catch (IOException e) {
+            log("Server error: " + e.getMessage());
         }
     }
 
-    private static void log(String message) {
-        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+    private void log(String message) {
+        Platform.runLater(() -> logArea.appendText(message + "\n"));
     }
 
-    private static class Handler implements Runnable {
+    private class Handler implements Runnable {
         private String name;
         private Socket socket;
         private BufferedReader in;
         private PrintWriter out;
 
-        public Handler(Socket socket) {
+        Handler(Socket socket) {
             this.socket = socket;
         }
 
@@ -74,13 +74,11 @@ public class ChatServer {
                 while (true) {
                     out.println("SUBMIT NAME");
                     name = in.readLine();
-                    if (name == null) {
-                        return;
-                    }
+                    if (name == null) return;
                     synchronized (names) {
                         if (!names.contains(name)) {
                             names.add(name);
-                            SwingUtilities.invokeLater(() -> clientListModel.addElement(name));
+                            Platform.runLater(() -> clientNames.add(name));
                             break;
                         } else {
                             out.println("NAME ALREADY EXISTS");
@@ -93,20 +91,18 @@ public class ChatServer {
 
                 while (true) {
                     String input = in.readLine();
-                    if (input == null) {
-                        return;
-                    }
+                    if (input == null) return;
                     for (PrintWriter writer : writers) {
                         writer.println(name + ": " + input);
                     }
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                log("Error: " + e.getMessage());
             } finally {
                 if (name != null) {
                     synchronized (names) {
                         names.remove(name);
-                        SwingUtilities.invokeLater(() -> clientListModel.removeElement(name));
+                        Platform.runLater(() -> clientNames.remove(name));
                     }
                     log(name + " has left the chat.");
                 }
@@ -115,9 +111,7 @@ public class ChatServer {
                 }
                 try {
                     socket.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                } catch (IOException ignored) {}
                 for (PrintWriter writer : writers) {
                     writer.println(name + " has left the chat.");
                 }
